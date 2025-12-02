@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes.js';
+import projectRoutes from './routes/project.routes.js';
 
 dotenv.config();
 
@@ -23,5 +24,6 @@ app.get("/health", (req, res) => {
 
 
 app.use('/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
 
 export default app;
