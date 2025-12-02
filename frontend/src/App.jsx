@@ -1,21 +1,24 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import { api } from "./services/api";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoutes";
 
 function App() {
-  const [status, setStatus] = useState('')
-
-  useEffect(()=>{
-    api.get("/health").then(res=>{
-      setStatus(res.data.status)
-    })
-  },[])
-  
   return (
-    <>
-      <div className='p-10 text-2xl'>Backend Status: {status}</div>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
