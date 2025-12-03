@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes.js';
 import projectRoutes from './routes/project.routes.js';
+import { requireAuth } from './middlewares/auth.js';
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
 
+app.get('/auth/check', requireAuth, (req, res) => {
+  res.json({ authenticated: true });
+});
 
 app.use('/auth', authRoutes);
 app.use('/api/projects', projectRoutes);

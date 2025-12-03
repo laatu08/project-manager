@@ -1,23 +1,33 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { api } from "../services/api";
 
+const AuthContext = createContext();
 
-const AuthContext=createContext();
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
 
-export const AuthProvider=({children})=>{
-    const [isAuthenticated,setIsAuthenticated]=useState(false);
+  const login = () => setIsAuthenticated(true);
+  const logout = () => setIsAuthenticated(false);
 
-    const login=()=>{
+  // 🔥 Check cookie/token on refresh
+  useEffect(() => {
+    const verify = async () => {
+      try {
+        await api.get("/auth/check", { withCredentials: true });
         setIsAuthenticated(true);
-    }
-    const logout=()=>{
+      } catch (err) {
         setIsAuthenticated(false);
-    }
+      }
+    };
 
-    return (
-        <AuthContext.Provider value={{isAuthenticated,login,logout}}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+    verify();
+  }, []);
 
-export const useAuth=()=>useContext(AuthContext);
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

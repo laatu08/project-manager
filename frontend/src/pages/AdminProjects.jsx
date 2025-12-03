@@ -7,9 +7,11 @@ export default function AdminProjects() {
     const [projects,setProjects]=React.useState([])
 
     useEffect(()=>{
-        getProjects().then((res)=>{
-            setProjects(res.data);
+        getProjects().then(res=>{
+          console.log(".......................(",res);
+            setProjects(res);
         })
+        // console.log(projects);
     },[]);
 
   return (
