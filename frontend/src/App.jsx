@@ -7,6 +7,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import AdminProjects from "./pages/AdminProjects";
 import CreateProject from "./pages/CreateProject";
 import SplashIntro from "./pages/SplashIntro";
+import EditProject from "./pages/EditProject";
 
 function App() {
   return (
@@ -31,6 +32,15 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminProjects />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/projects/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EditProject />
             </ProtectedRoute>
           }
         />

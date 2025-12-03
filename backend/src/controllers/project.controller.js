@@ -190,3 +190,21 @@ export const uploadProjectImages = async (req, res) => {
   }
 };
 
+
+
+export const deleteProjectImage = async (req, res) => {
+  const { id } = req.params;
+  const { url } = req.body;
+
+  try {
+    const updated = await Project.findByIdAndUpdate(
+      id,
+      { $pull: { images: { url } } },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Image deletion failed" });
+  }
+};

@@ -39,3 +39,10 @@ export const uploadImage = async (id, files) => {
 
   return res.data;
 };
+
+
+// Delete image
+export const deleteImage = (projectId, url) =>
+  api.delete(`/api/projects/${projectId}/images`, {
+    data: { url }
+  });
