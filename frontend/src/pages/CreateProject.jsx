@@ -1,13 +1,24 @@
 import { useForm } from "react-hook-form";
-import { createProject } from "../services/projectApi";
+import { createProject, uploadImage } from "../services/projectApi";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function CreateProject() {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+    const [files, setFiles] = useState([]);
+
 
   const onSubmit = async (data) => {
-    await createProject(data);
+    const res=await createProject(data);
+    console.log("Created Project: ", res);
+    const projectId = res.data._id;
+    if (files.length > 0) {
+      for (let file of files) {
+        await uploadImage(projectId, file);
+      }
+    }
+
     navigate("/admin/projects");
   };
 
@@ -31,8 +42,31 @@ export default function CreateProject() {
           <option value="private">Private</option>
         </select>
 
+
+        <div>
+          <label className="font-semibold">Project Images</label>
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setFiles([...e.target.files])}
+            className="w-full p-2 border mt-2"
+          />
+        </div>
+
         <button className="bg-green-600 text-white p-2 rounded">Create</button>
       </form>
+
+       {files.length > 0 && (
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          {Array.from(files).map((file, idx) => (
+            <img
+              key={idx}
+              className="w-full rounded border"
+              src={URL.createObjectURL(file)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

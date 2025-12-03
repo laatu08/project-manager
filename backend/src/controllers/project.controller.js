@@ -51,42 +51,42 @@ export const createProject = async (req, res) => {
 };
 
 
-export const getProjects=async(req,res)=>{
-    try {
-        let projects;
+export const getProjects = async (req, res) => {
+  try {
+    let projects;
 
-        if(req.user?.role==="admin"){
-            projects = await Project.find().sort({ createdAt: -1 });
-        }
-        else{
-            projects = await Project.find({ visibility: "public" }).sort({ createdAt: -1 });
-        }
-
-        res.json(projects);
-    } catch (error) {
-        console.error("Error in getProjects:",error);
-        res.status(500).json({message:"Error fetching projects"});
+    if (req.user?.role === "admin") {
+      projects = await Project.find().sort({ createdAt: -1 });
     }
+    else {
+      projects = await Project.find({ visibility: "public" }).sort({ createdAt: -1 });
+    }
+
+    res.json(projects);
+  } catch (error) {
+    console.error("Error in getProjects:", error);
+    res.status(500).json({ message: "Error fetching projects" });
+  }
 }
 
 
-export const getProjectById=async(req,res)=>{
-    try {
-        const project=await Project.findById(req.params.id);
+export const getProjectById = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
 
-        if(!project){
-            return res.status(404).json({message:"Project not found"});
-        }
-
-        if(project.visibility!=="public" && req.user?.role!=="admin"){
-            return res.status(403).json({message:"Forbidden"});
-        }
-
-        res.json(project);
-    } catch (error) {
-        console.error("Error in getProjectById:",error);
-        res.status(500).json({message:"Error fetching project"});
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
     }
+
+    if (project.visibility !== "public" && req.user?.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    res.json(project);
+  } catch (error) {
+    console.error("Error in getProjectById:", error);
+    res.status(500).json({ message: "Error fetching project" });
+  }
 }
 
 
@@ -129,39 +129,57 @@ export const updateProject = async (req, res) => {
 
 
 
-export const deleteProject=async(req,res)=>{
-    try {
-        await Project.findByIdAndDelete(req.params.id);
-        res.json({message:"Project deleted successfully"});
-    } catch (error) {
-        console.error("Error in deleteProject:",error);
-        res.status(500).json({message:"Error deleting project"});
-    }
+export const deleteProject = async (req, res) => {
+  try {
+    await Project.findByIdAndDelete(req.params.id);
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteProject:", error);
+    res.status(500).json({ message: "Error deleting project" });
+  }
 }
 
 
-export const uploadProjectImage=async(req,res)=>{
-    try {
-        const file=req.file;
+export const uploadProjectImage = async (req, res) => {
+  try {
+    const file = req.file;
 
-        if(!file){
-            return res.status(400).json({message:"No file uploaded"});
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Upload to Cloudinary
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "project_images" },
+      async (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          return res.status(500).json({ message: "Error uploading image" });
         }
 
-        const upload=await cloudinary.uploader.upload_stream(
-            { folder: "project_images" },
-            (error, result) => {
-                if (error) {
-                    console.error("Cloudinary upload error:", error);
-                    return res.status(500).json({ message: "Error uploading image" });
-                }
-                res.status(201).json({ message: "Image uploaded successfully", url: result.secure_url,alt:req.body.alt || "Project Image" });
-            }
+        const imageData = {
+          url: result.secure_url,
+          alt: req.body.alt || "Project image",
+        };
+
+        // IMPORTANT: MUST AWAIT THIS
+        const updatedProject = await Project.findByIdAndUpdate(
+          req.params.id,
+          { $push: { images: imageData } },
+          { new: true }
         );
 
-        upload.end(file.buffer);
-    } catch (error) {
-        console.error("Error in uploadProjectImage:",error);
-        res.status(500).json({message:"Error uploading image"});
-    }
-}
+        return res.status(201).json({
+          message: "Image uploaded successfully",
+          image: imageData,
+          project: updatedProject,
+        });
+      }
+    );
+
+    uploadStream.end(file.buffer);
+  } catch (error) {
+    console.error("Error in uploadProjectImage:", error);
+    res.status(500).json({ message: "Error uploading image" });
+  }
+};

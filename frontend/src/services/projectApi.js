@@ -6,7 +6,7 @@ export const createProject = async (data) => {
 
 export const getProjects = async () => {
   const res = await api.get('/api/projects');
-  return res.data;          // 🔥 important
+  return res.data;       
 };
 
 export const getProjectById = async (id) => {
