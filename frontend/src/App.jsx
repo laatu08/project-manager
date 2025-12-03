@@ -6,12 +6,14 @@ import PublicGallery from "./pages/PublicGallery";
 import ProjectDetail from "./pages/ProjectDetail";
 import AdminProjects from "./pages/AdminProjects";
 import CreateProject from "./pages/CreateProject";
+import SplashIntro from "./pages/SplashIntro";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PublicGallery />} />
+        <Route path="/" element={<SplashIntro />} />
+        <Route path="/gallery" element={<PublicGallery />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
 
         <Route path="/admin/login" element={<AdminLogin />} />
