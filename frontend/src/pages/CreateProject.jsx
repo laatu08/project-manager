@@ -14,9 +14,7 @@ export default function CreateProject() {
     console.log("Created Project: ", res);
     const projectId = res.data._id;
     if (files.length > 0) {
-      for (let file of files) {
-        await uploadImage(projectId, file);
-      }
+      await uploadImage(projectId, files);
     }
 
     navigate("/admin/projects");

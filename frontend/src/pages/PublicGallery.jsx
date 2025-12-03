@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProjects } from "../services/projectApi";
 import { Link } from "react-router-dom";
+import AutoSlider from "../components/AutoSlider";
 
 export default function PublicGallery() {
   const [projects, setProjects] = useState([]);
@@ -36,12 +37,7 @@ export default function PublicGallery() {
             <h2 className="text-xl font-semibold">{project.title}</h2>
             <p className="text-gray-600 mt-2">{project.summary}</p>
 
-            {project.images?.[0] && (
-              <img
-                src={project.images[0].url}
-                className="mt-3 h-40 w-full object-cover rounded"
-              />
-            )}
+            <AutoSlider images={project.images} interval={2500} />
           </Link>
         ))}
       </div>

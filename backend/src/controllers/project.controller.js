@@ -140,46 +140,53 @@ export const deleteProject = async (req, res) => {
 }
 
 
-export const uploadProjectImage = async (req, res) => {
+export const uploadProjectImages = async (req, res) => {
   try {
-    const file = req.file;
-
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Upload to Cloudinary
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "project_images" },
-      async (error, result) => {
-        if (error) {
-          console.error("Cloudinary upload error:", error);
-          return res.status(500).json({ message: "Error uploading image" });
-        }
+    const imageUploads = [];
 
-        const imageData = {
-          url: result.secure_url,
-          alt: req.body.alt || "Project image",
-        };
+    for (let file of req.files) {
+      // Wrap Cloudinary upload in a Promise
+      const uploadPromise = new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "project_images" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result.secure_url);
+          }
+        ).end(file.buffer);
+      });
 
-        // IMPORTANT: MUST AWAIT THIS
-        const updatedProject = await Project.findByIdAndUpdate(
-          req.params.id,
-          { $push: { images: imageData } },
-          { new: true }
-        );
+      imageUploads.push(uploadPromise);
+    }
 
-        return res.status(201).json({
-          message: "Image uploaded successfully",
-          image: imageData,
-          project: updatedProject,
-        });
-      }
+    // Wait for all uploads
+    const uploadedUrls = await Promise.all(imageUploads);
+
+    // Convert uploaded URLs to DB format
+    const imagesArray = uploadedUrls.map((url) => ({
+      url,
+      alt: "Project Image",
+    }));
+
+    // Insert ALL images into database at once
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params.id,
+      { $push: { images: { $each: imagesArray } } },
+      { new: true }
     );
 
-    uploadStream.end(file.buffer);
+    return res.status(200).json({
+      message: "Images uploaded successfully",
+      images: imagesArray,
+      project: updatedProject,
+    });
   } catch (error) {
-    console.error("Error in uploadProjectImage:", error);
-    res.status(500).json({ message: "Error uploading image" });
+    console.error("Error uploading multiple images:", error);
+    res.status(500).json({ message: "Error uploading multiple images" });
   }
 };
+

@@ -7,7 +7,7 @@ import {
   getProjectById,
   updateProject,
   deleteProject,
-  uploadProjectImage,
+  uploadProjectImages,
 } from "../controllers/project.controller.js";
 
 import { upload } from '../middlewares/multer.js';
@@ -24,6 +24,6 @@ router.post("/", requireAuth, createProject);
 router.put("/:id", requireAuth, updateProject);
 router.delete("/:id", requireAuth, deleteProject);
 
-router.post("/:id/images", requireAuth, upload.single("image"), uploadProjectImage);
+router.post("/:id/images", requireAuth, upload.array("images",10), uploadProjectImages);
 
 export default router;

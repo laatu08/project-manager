@@ -24,9 +24,12 @@ export const deleteProject = async (id) => {
   return res.data;
 };
 
-export const uploadImage = async (id, file) => {
+export const uploadImage = async (id, files) => {
   const form = new FormData();
-  form.append('image', file);
+  
+  for (let file of files) {
+    form.append("images", file);
+  }
 
   const res = await api.post(`/api/projects/${id}/images`, form, {
     headers: {

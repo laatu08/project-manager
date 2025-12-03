@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import AutoSlider from "../components/AutoSlider";
+import AutoScrollDragSlider from "../components/AutoScrollDragSlider";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -35,13 +37,17 @@ export default function ProjectDetail() {
       {/* Carousel */}
       {project.images?.length > 0 && (
         <div className="my-6">
-          <Swiper spaceBetween={20} slidesPerView={1}>
+          {/* <Swiper spaceBetween={20} slidesPerView={1}>
             {project.images.map((img, index) => (
               <SwiperSlide key={index}>
                 <img src={img.url} alt={img.alt} className="rounded" />
               </SwiperSlide>
             ))}
-          </Swiper>
+          </Swiper> */}
+
+          {/* <AutoSlider images={project.images} interval={3000} /> */}
+
+          <AutoScrollDragSlider images={project.images} interval={2500} />
         </div>
       )}
 
