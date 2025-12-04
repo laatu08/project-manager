@@ -29,7 +29,7 @@ export default function SplashIntro() {
 
       {/* Typing effect */}
       <div className="mt-6 text-lg md:text-xl text-blue-300 font-mono animate-pulse">
-        Loading your project showcase...
+        Loading the project showcase...
       </div>
 
       <button
