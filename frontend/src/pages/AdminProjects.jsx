@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { deleteProject, getProjects } from "../services/projectApi";
 import { Link } from "react-router-dom";
 import { FiTrash2, FiEdit, FiMoreVertical, FiImage } from "react-icons/fi";
+import AutoSlider from "../components/AutoSlider";
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState([]);
@@ -40,7 +41,7 @@ export default function AdminProjects() {
             className="bg-white rounded-xl shadow hover:shadow-lg border transition p-4 relative"
           >
             {/* Action Menu */}
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 right-3 z-30">
               <button
                 onClick={() =>
                   setMenuOpen(menuOpen === p._id ? null : p._id)
@@ -71,11 +72,13 @@ export default function AdminProjects() {
 
             {/* Thumbnail */}
             {p.images?.length > 0 ? (
-              <img
-                src={p.images[0].url}
-                className="w-full h-40 object-cover rounded-lg"
-                alt="thumbnail"
-              />
+              // <img
+              //   src={p.images[0].url}
+              //   className="w-full h-40 object-cover rounded-lg"
+              //   alt="thumbnail"
+              // />
+                <AutoSlider images={p.images} interval={2500} height="h-52" />
+              
             ) : (
               <div className="w-full h-40 bg-gray-200 flex items-center justify-center rounded-lg">
                 <FiImage className="text-gray-400" size={40} />

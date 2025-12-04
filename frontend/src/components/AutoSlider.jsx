@@ -16,7 +16,7 @@ export default function AutoSlider({ images = [], interval = 3000 }) {
   if (!images.length) return null;
 
   return (
-    <div className="w-full h-40 overflow-hidden rounded relative">
+    <div className="w-full h-52 overflow-hidden rounded relative">
       {images.map((img, i) => (
         <img
           key={i}
