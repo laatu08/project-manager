@@ -6,7 +6,7 @@ import {
   uploadImage,
   deleteImage,
 } from "../services/projectApi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 
 export default function EditProject() {
   const { id } = useParams();
@@ -17,149 +17,211 @@ export default function EditProject() {
   const [files, setFiles] = useState([]);
   const [deletedImages, setDeletedImages] = useState([]);
 
+  const [loading, setLoading] = useState(true);
 
   // Load project data
   useEffect(() => {
     getProjectById(id).then((res) => {
       setProject(res);
-      reset(res); // pre-fill form
+      reset(res);
+      setLoading(false);
     });
   }, [id, reset]);
 
   const onSubmit = async (data) => {
-  // 1. Update basic project fields
-  await updateProject(id, data);
+    await updateProject(id, data);
 
-  // 2. Delete images marked for removal
-  if (deletedImages.length > 0) {
+    // Delete removed images
     for (let url of deletedImages) {
       await deleteImage(id, url);
     }
-  }
 
-  // 3. Upload new images
-  if (files.length > 0) {
-    await uploadImage(id, files);
-  }
+    // Upload new images
+    if (files.length > 0) {
+      await uploadImage(id, files);
+    }
 
-  navigate("/admin/projects");
-};
-
-
-//   const handleDeleteImage = async (url) => {
-//     await deleteImage(id, url);
-//     setProject((prev) => ({
-//       ...prev,
-//       images: prev.images.filter((img) => img.url !== url),
-//     }));
-//   };
+    navigate("/admin/projects");
+  };
 
   const handleDeleteMark = (url) => {
-  setDeletedImages((prev) => [...prev, url]);
-  setProject((prev) => ({
-    ...prev,
-    images: prev.images.filter((img) => img.url !== url),
-  }));
-};
+    setDeletedImages((prev) => [...prev, url]);
+    setProject((prev) => ({
+      ...prev,
+      images: prev.images.filter((img) => img.url !== url),
+    }));
+  };
 
-
-  if (!project) return <div className="p-10">Loading...</div>;
+  if (loading) return <div className="p-10 text-lg">Loading...</div>;
 
   return (
-    <div className="p-5 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Edit Project</h1>
+    <div className="max-w-5xl mx-auto p-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Edit Project</h1>
+        <Link
+          to="/admin/projects"
+          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+        >
+          Back
+        </Link>
+      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <input
-          className="w-full p-2 border"
-          {...register("title")}
-          placeholder="Title"
-        />
-        <input
-          className="w-full p-2 border"
-          {...register("summary")}
-          placeholder="Summary"
-        />
-        <textarea
-          className="w-full p-2 border h-32"
-          {...register("description")}
-          placeholder="Description"
-        />
+      <div className="grid lg:grid-cols-3 gap-10">
+        {/* ---------------- LEFT: Edit Form ---------------- */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-5 bg-white p-6 rounded-xl shadow-lg lg:col-span-2"
+        >
+          <Section title="Basic Details" />
 
-        <input
-          className="w-full p-2 border"
-          {...register("techStack")}
-          placeholder="Tech Stack (comma separated)"
-        />
-        <input
-          className="w-full p-2 border"
-          {...register("tags")}
-          placeholder="Tags (comma separated)"
-        />
+          <Input label="Title" register={register("title")} />
+          <Input label="Summary" register={register("summary")} />
 
-        <input
-          className="w-full p-2 border"
-          {...register("githubUrl")}
-          placeholder="Github URL"
-        />
-        <input
-          className="w-full p-2 border"
-          {...register("liveUrl")}
-          placeholder="Live URL"
-        />
-        <input
-          className="w-full p-2 border"
-          type="number"
-          {...register("year")}
-          placeholder="Year"
-        />
+          <TextArea
+            label="Description"
+            rows={4}
+            register={register("description")}
+          />
 
-        <select className="w-full p-2 border" {...register("visibility")}>
-          <option value="draft">Draft</option>
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-        </select>
+          <Section title="Tech & Tags" />
 
-        {/* Image Upload */}
-        <div>
-          <label className="font-semibold">Upload New Images</label>
+          <Input
+            label="Tech Stack"
+            sub="Comma separated"
+            register={register("techStack")}
+          />
+          <Input
+            label="Tags"
+            sub="Comma separated"
+            register={register("tags")}
+          />
+
+          <Section title="Links" />
+
+          <Input label="GitHub URL" register={register("githubUrl")} />
+          <Input label="Live URL" register={register("liveUrl")} />
+
+          <Input label="Year" type="number" register={register("year")} />
+
+          <div>
+            <label className="font-medium">Visibility</label>
+            <select
+              {...register("visibility")}
+              className="w-full mt-2 p-2 border rounded-lg"
+            >
+              <option value="draft">Draft</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          <Section title="Upload Images" />
+
           <input
             type="file"
             multiple
             onChange={(e) => setFiles([...e.target.files])}
-            className="w-full p-2 border mt-2"
+            className="w-full p-2 border rounded-lg"
           />
-        </div>
 
-        <button className="bg-blue-600 text-white p-2 rounded">
-          Save Changes
-        </button>
-      </form>
+          <Section />
 
-      {/* Existing images */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-3">Current Images</h2>
+          <div className="flex gap-4 justify-end">
+            <button
+              type="button"
+              onClick={() => navigate("/admin/projects")}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+            >
+              Cancel
+            </button>
 
-        <div className="grid grid-cols-3 gap-4">
-          {project.images?.map((img, i) => (
-            <div key={i} className="relative group">
-              <img
-                src={img.url}
-                alt={img.alt}
-                className="w-full h-28 object-cover rounded"
-              />
+            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+              Save Changes
+            </button>
+          </div>
+        </form>
 
-              {/* Delete button */}
-              <button
-                onClick={() => handleDeleteMark(img.url)}
-                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
+        {/* ---------------- RIGHT: Sticky Image Manager ---------------- */}
+        <div className="sticky top-20 h-fit">
+          <h2 className="text-xl font-semibold mb-3">
+            Current Images{" "}
+            <span className="text-gray-500 text-sm">
+              ({project.images?.length})
+            </span>
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {project.images?.map((img, idx) => (
+              <div key={idx} className="relative group">
+                <img
+                  src={img.url}
+                  alt=""
+                  className="w-full h-32 object-cover rounded-lg shadow"
+                />
+
+                <button
+                  onClick={() => handleDeleteMark(img.url)}
+                  className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* New Images Preview */}
+          {files.length > 0 && (
+            <>
+              <h2 className="text-xl font-semibold mt-6 mb-3">New Images</h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {files.map((file, idx) => (
+                  <img
+                    key={idx}
+                    src={URL.createObjectURL(file)}
+                    className="w-full h-32 object-cover rounded-lg shadow border"
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+/* -------------------- Reusable Components -------------------- */
+
+function Input({ label, register, type = "text", sub }) {
+  return (
+    <div>
+      <label className="font-medium">{label}</label>
+      {sub && <p className="text-sm text-gray-500">{sub}</p>}
+      <input
+        type={type}
+        {...register}
+        className="w-full p-2 border rounded-lg mt-1"
+      />
+    </div>
+  );
+}
+
+function TextArea({ label, register, rows = 3 }) {
+  return (
+    <div>
+      <label className="font-medium">{label}</label>
+      <textarea
+        {...register}
+        rows={rows}
+        className="w-full p-2 border rounded-lg mt-1"
+      ></textarea>
+    </div>
+  );
+}
+
+function Section({ title }) {
+  if (!title) return <hr className="my-4" />;
+  return <h3 className="text-lg font-semibold mt-6">{title}</h3>;
 }

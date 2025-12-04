@@ -8,6 +8,7 @@ import AdminProjects from "./pages/AdminProjects";
 import CreateProject from "./pages/CreateProject";
 import SplashIntro from "./pages/SplashIntro";
 import EditProject from "./pages/EditProject";
+import AdminLayout from "./layout/AdminLayout";
 
 function App() {
   return (
@@ -22,7 +23,9 @@ function App() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute>
+              <AdminLayout>
               <AdminDashboard />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -31,7 +34,9 @@ function App() {
           path="/admin/projects"
           element={
             <ProtectedRoute>
+              <AdminLayout>
               <AdminProjects />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -40,7 +45,9 @@ function App() {
           path="/admin/projects/:id/edit"
           element={
             <ProtectedRoute>
+              <AdminLayout>
               <EditProject />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
@@ -49,7 +56,9 @@ function App() {
           path="/admin/projects/new"
           element={
             <ProtectedRoute>
+              <AdminLayout>
               <CreateProject />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
