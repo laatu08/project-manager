@@ -355,6 +355,7 @@ export const deleteProjectVideo = async (req, res) => {
     const publicId = extractPublicId(videoUrl);
 
     // Delete video from Cloudinary
+    console.log("Deleting video with public ID:", publicId);
     await cloudinary.uploader.destroy(publicId, {
       resource_type: "video",
     });

@@ -20,7 +20,7 @@ const router = express.Router();
 // Public
 router.get("/", getProjects);
 router.get("/all", requireAuth, getProjects);
-router.get("/:id", getProjectById);
+router.get("/:id",requireAuth, getProjectById);
 
 // Admin
 router.post("/", requireAuth, createProject);

@@ -5,6 +5,8 @@ import {
   updateProject,
   uploadImage,
   deleteImage,
+  uploadVideo,
+  deleteVideo
 } from "../services/projectApi";
 import { useNavigate, useParams, Link } from "react-router-dom";
 
@@ -13,13 +15,17 @@ export default function EditProject() {
   const navigate = useNavigate();
 
   const { register, handleSubmit, reset } = useForm();
+
   const [project, setProject] = useState(null);
   const [files, setFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+
   const [deletedImages, setDeletedImages] = useState([]);
+  const [deleteVideoFlag, setDeleteVideoFlag] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
-  // Load project data
+  // Load project
   useEffect(() => {
     getProjectById(id).then((res) => {
       setProject(res);
@@ -41,10 +47,20 @@ export default function EditProject() {
       await uploadImage(id, files);
     }
 
+    // Delete existing video if requested
+    if (deleteVideoFlag) {
+      await deleteVideo(id);
+    }
+
+    // Upload new video if chosen
+    if (videoFile) {
+      await uploadVideo(id, videoFile);
+    }
+
     navigate("/admin/projects");
   };
 
-  const handleDeleteMark = (url) => {
+  const handleDeleteImageMark = (url) => {
     setDeletedImages((prev) => [...prev, url]);
     setProject((prev) => ({
       ...prev,
@@ -68,7 +84,7 @@ export default function EditProject() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
-        {/* ---------------- LEFT: Edit Form ---------------- */}
+        {/* -------------------------------- LEFT FORM -------------------------------- */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-5 bg-white p-6 rounded-xl shadow-lg lg:col-span-2"
@@ -86,22 +102,13 @@ export default function EditProject() {
 
           <Section title="Tech & Tags" />
 
-          <Input
-            label="Tech Stack"
-            sub="Comma separated"
-            register={register("techStack")}
-          />
-          <Input
-            label="Tags"
-            sub="Comma separated"
-            register={register("tags")}
-          />
+          <Input label="Tech Stack" sub="Comma separated" register={register("techStack")} />
+          <Input label="Tags" sub="Comma separated" register={register("tags")} />
 
           <Section title="Links" />
 
           <Input label="GitHub URL" register={register("githubUrl")} />
           <Input label="Live URL" register={register("liveUrl")} />
-
           <Input label="Year" type="number" register={register("year")} />
 
           <div>
@@ -116,7 +123,7 @@ export default function EditProject() {
             </select>
           </div>
 
-          <Section title="Upload Images" />
+          <Section title="Upload New Images" />
 
           <input
             type="file"
@@ -124,6 +131,26 @@ export default function EditProject() {
             onChange={(e) => setFiles([...e.target.files])}
             className="w-full p-2 border rounded-lg"
           />
+
+          <Section title="Upload / Replace Video" />
+
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setVideoFile(e.target.files[0])}
+            className="w-full p-2 border rounded-lg"
+          />
+          <p className="text-xs text-gray-500 mt-1">Upload a new video (optional)</p>
+
+          {project.video?.url && !videoFile && (
+            <button
+              type="button"
+              onClick={() => setDeleteVideoFlag(true)}
+              className="px-3 py-1 mt-2 bg-red-600 text-white text-xs rounded"
+            >
+              Delete Existing Video
+            </button>
+          )}
 
           <Section />
 
@@ -142,39 +169,41 @@ export default function EditProject() {
           </div>
         </form>
 
-        {/* ---------------- RIGHT: Sticky Image Manager ---------------- */}
-        <div className="sticky top-20 h-fit">
-          <h2 className="text-xl font-semibold mb-3">
-            Current Images{" "}
-            <span className="text-gray-500 text-sm">
-              ({project.images?.length})
-            </span>
-          </h2>
+        {/* -------------------------------- RIGHT STICKY MEDIA SECTION -------------------------------- */}
+        <div className="sticky top-20 h-fit space-y-10">
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {project.images?.map((img, idx) => (
-              <div key={idx} className="relative group">
-                <img
-                  src={img.url}
-                  alt=""
-                  className="w-full h-32 object-cover rounded-lg shadow"
-                />
+          {/* Existing Images */}
+          <div>
+            <h2 className="text-xl font-semibold mb-3">
+              Current Images{" "}
+              <span className="text-gray-500 text-sm">
+                ({project.images?.length})
+              </span>
+            </h2>
 
-                <button
-                  onClick={() => handleDeleteMark(img.url)}
-                  className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {project.images?.map((img, idx) => (
+                <div key={idx} className="relative group">
+                  <img
+                    src={img.url}
+                    className="w-full h-32 object-cover rounded-lg shadow"
+                  />
+
+                  <button
+                    onClick={() => handleDeleteImageMark(img.url)}
+                    className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* New Images Preview */}
           {files.length > 0 && (
-            <>
-              <h2 className="text-xl font-semibold mt-6 mb-3">New Images</h2>
-
+            <div>
+              <h2 className="text-xl font-semibold mb-3">New Images</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {files.map((file, idx) => (
                   <img
@@ -184,26 +213,47 @@ export default function EditProject() {
                   />
                 ))}
               </div>
-            </>
+            </div>
           )}
+
+          {/* Existing Video */}
+          {!videoFile && project.video?.url && !deleteVideoFlag && (
+            <div>
+              <h2 className="text-xl font-semibold mb-3">Current Video</h2>
+              <video
+                src={project.video.url}
+                controls
+                className="w-full rounded-lg shadow"
+              ></video>
+            </div>
+          )}
+
+          {/* New Video Preview */}
+          {videoFile && (
+            <div>
+              <h2 className="text-xl font-semibold mb-3">New Video Preview</h2>
+              <video
+                src={URL.createObjectURL(videoFile)}
+                controls
+                className="w-full rounded-lg shadow"
+              ></video>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
   );
 }
 
-/* -------------------- Reusable Components -------------------- */
+/* ---------------- Reusable Components ---------------- */
 
 function Input({ label, register, type = "text", sub }) {
   return (
     <div>
       <label className="font-medium">{label}</label>
       {sub && <p className="text-sm text-gray-500">{sub}</p>}
-      <input
-        type={type}
-        {...register}
-        className="w-full p-2 border rounded-lg mt-1"
-      />
+      <input type={type} {...register} className="w-full p-2 border rounded-lg mt-1" />
     </div>
   );
 }
@@ -212,11 +262,7 @@ function TextArea({ label, register, rows = 3 }) {
   return (
     <div>
       <label className="font-medium">{label}</label>
-      <textarea
-        {...register}
-        rows={rows}
-        className="w-full p-2 border rounded-lg mt-1"
-      ></textarea>
+      <textarea {...register} rows={rows} className="w-full p-2 border rounded-lg mt-1"></textarea>
     </div>
   );
 }
