@@ -54,7 +54,7 @@ export const createProject = async (req, res) => {
 export const getProjects = async (req, res) => {
   try {
     let projects;
-
+    // console.log("User Role:", req);
     if (req.user?.role === "admin") {
       projects = await Project.find().sort({ createdAt: -1 });
     }

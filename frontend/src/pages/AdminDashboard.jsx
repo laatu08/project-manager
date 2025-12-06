@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProjects } from "../services/projectApi";
+import { getAllProjects, getProjects } from "../services/projectApi";
 import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -11,7 +11,7 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    getProjects().then((res) => {
+    getAllProjects().then((res) => {
       const data = res;
 
       setStats({

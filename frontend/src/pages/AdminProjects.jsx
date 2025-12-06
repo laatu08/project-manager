@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { deleteProject, getProjects } from "../services/projectApi";
+import { deleteProject, getAllProjects, getProjects } from "../services/projectApi";
 import { Link } from "react-router-dom";
 import { FiTrash2, FiEdit, FiMoreVertical, FiImage } from "react-icons/fi";
 import AutoSlider from "../components/AutoSlider";
@@ -11,7 +11,7 @@ export default function AdminProjects() {
   const [deleteId, setDeleteId] = useState(null); // for confirmation modal
 
   useEffect(() => {
-    getProjects().then((res) => {
+    getAllProjects().then((res) => {
       setProjects(res);
       setLoading(false);
     });

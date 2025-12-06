@@ -20,6 +20,12 @@ const projectSchema = mongoose.Schema({
             alt: String,
         }
     ],
+    video: {
+        url: { type: String },        // required: false by default
+        thumbnail: { type: String },
+        title: { type: String },
+        duration: { type: Number }
+    },
     githubUrl: {
         type: String,
     },

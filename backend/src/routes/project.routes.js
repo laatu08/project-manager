@@ -18,10 +18,12 @@ const router = express.Router();
 
 // Public
 router.get("/", getProjects);
+router.get("/all",requireAuth ,getProjects);
 router.get("/:id", getProjectById);
 
 // Admin
 router.post("/", requireAuth, createProject);
+
 router.put("/:id", requireAuth, updateProject);
 router.delete("/:id", requireAuth, deleteProject);
 

@@ -9,6 +9,11 @@ export const getProjects = async () => {
   return res.data;       
 };
 
+export const getAllProjects = async () => {
+  const res = await api.get('/api/projects/all');
+  return res.data;       
+};
+
 export const getProjectById = async (id) => {
   const res = await api.get(`/api/projects/${id}`);
   return res.data;
