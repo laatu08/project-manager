@@ -6,9 +6,7 @@ import {
   FiGithub,
   FiExternalLink,
   FiTag,
-  FiLayers,
   FiChevronLeft,
-  FiChevronRight,
 } from "react-icons/fi";
 
 import AutoScrollDragSlider from "../components/AutoScrollDragSlider";
@@ -18,12 +16,22 @@ export default function ProjectDetail() {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
 
+  const [viewMode, setViewMode] = useState("images"); // "images" | "video"
+
   useEffect(() => {
-    getProjectById(id).then((res) => setProject(res.data || res));
+    getProjectById(id).then((res) => {
+      const data=res;
+      setProject(res.data || res)
+
+      if(data.images?.length===0 && data.video?.url){
+        setViewMode("video");
+      }
+    });
+    
   }, [id]);
 
   if (!project) return <p className="p-10">Loading...</p>;
-
+  
   return (
     <div className="relative pb-32 max-w-7xl mx-auto px-6">
 
@@ -53,63 +61,50 @@ export default function ProjectDetail() {
             <div className="h-px w-full bg-gradient-to-r from-gray-300 to-transparent mt-6"></div>
           </section>
 
-          <section className="space-y-6 animate-fadeUp [animation-delay:0.15s]">
+          {project.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              {project.tags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full text-sm flex items-center gap-1
+                             bg-blue-50 border border-blue-200 text-blue-700 shadow-sm
+                             hover:bg-blue-100 transition"
+                >
+                  <FiTag size={14} /> {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
-            {project.tags?.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {project.tags.map((tag, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1 rounded-full text-sm flex items-center gap-1
-                               bg-blue-50 border border-blue-200 text-blue-700 shadow-sm
-                               hover:bg-blue-100 transition"
-                  >
-                    <FiTag size={14} /> {tag}
-                  </span>
-                ))}
-              </div>
+          <div className="flex gap-4 flex-wrap">
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl.startsWith("http") ? project.githubUrl : "https://" + project.githubUrl}
+                target="_blank"
+                className="px-5 py-2 bg-gray-900 text-white rounded-lg flex items-center gap-2 
+                           shadow hover:scale-105 hover:bg-black transition"
+              >
+                <FiGithub size={20} /> GitHub
+              </a>
             )}
 
-            <div className="flex gap-4 flex-wrap">
-              {project.githubUrl && (
-                <a
-                  href={
-                    project.githubUrl.startsWith("http")
-                      ? project.githubUrl
-                      : "https://" + project.githubUrl
-                  }
-                  target="_blank"
-                  className="px-5 py-2 bg-gray-900 text-white rounded-lg flex items-center gap-2 
-                             shadow hover:scale-105 hover:bg-black transition"
-                >
-                  <FiGithub size={20} /> GitHub
-                </a>
-              )}
-
-              {project.liveUrl && (
-                <a
-                  href={
-                    project.liveUrl.startsWith("http")
-                      ? project.liveUrl
-                      : "https://" + project.liveUrl
-                  }
-                  target="_blank"
-                  className="px-5 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 
-                             shadow hover:scale-105 hover:bg-green-700 transition"
-                >
-                  <FiExternalLink size={20} /> Live Demo
-                </a>
-              )}
-            </div>
-          </section>
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl.startsWith("http") ? project.liveUrl : "https://" + project.liveUrl}
+                target="_blank"
+                className="px-5 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 
+                           shadow hover:scale-105 hover:bg-green-700 transition"
+              >
+                <FiExternalLink size={20} /> Live Demo
+              </a>
+            )}
+          </div>
 
           {project.techStack?.length > 0 && (
-            <section className="animate-fadeUp [animation-delay:0.25s]">
+            <section className="animate-fadeUp">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-                <h2 className="text-2xl font-semibold flex items-center gap-2">
-                  Tech Stack
-                </h2>
+                <h2 className="text-2xl font-semibold">Tech Stack</h2>
               </div>
 
               <div className="flex flex-wrap gap-3">
@@ -126,44 +121,72 @@ export default function ProjectDetail() {
             </section>
           )}
 
-          <section className="mt-4 animate-fadeUp [animation-delay:0.35s]">
+          <section className="mt-4 animate-fadeUp">
             <h2 className="text-2xl font-semibold mb-3">About This Project</h2>
 
-            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed 
-                            prose-headings:font-semibold prose-a:text-blue-600">
+            <div
+              className="prose prose-lg max-w-none text-gray-800 leading-relaxed 
+                          prose-headings:font-semibold prose-a:text-blue-600"
+            >
               <ReactMarkdown>{project.description}</ReactMarkdown>
             </div>
           </section>
 
-          <section className="bg-gray-50 p-6 rounded-xl shadow border animate-fadeUp [animation-delay:0.45s]">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              Project Info
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4 text-gray-700 text-sm">
-              <div>
-                <span className="font-medium">Visibility:</span> {project.visibility}
-              </div>
-              <div>
-                <span className="font-medium">Year:</span> {project.year}
-              </div>
-              <div>
-                <span className="font-medium">Created:</span>{" "}
-                {new Date(project.createdAt).toLocaleDateString()}
-              </div>
-              <div>
-                <span className="font-medium">Updated:</span>{" "}
-                {new Date(project.updatedAt).toLocaleDateString()}
-              </div>
-            </div>
-          </section>
         </div>
 
-        <div className="hidden lg:block fixed right-20 top-24 w-[600px]">
-  <div className="w-full h-[450px] rounded-xl shadow-2xl bg-black flex items-center justify-center">
-    {project.images?.length > 0 && (
-      <AutoScrollDragSlider images={project.images} interval={2500} />
-    )}
+<div className="hidden lg:block fixed right-20 top-16 w-[600px]">
+
+  <div className="flex justify-center mb-4">
+    <div className="bg-white shadow-md rounded-full p-1 flex gap-2">
+      
+      <button
+        className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+          ${viewMode === "images" 
+            ? "bg-blue-600 text-white shadow" 
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+        onClick={() => setViewMode("images")}
+      >
+        Images
+      </button>
+
+      <button
+        className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+          ${viewMode === "video" 
+            ? "bg-blue-600 text-white shadow" 
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+        onClick={() => setViewMode("video")}
+      >
+        Video
+      </button>
+    </div>
+  </div>
+
+  <div className="w-full h-[450px] rounded-xl shadow-2xl bg-black overflow-hidden relative">
+
+    <div className={`absolute inset-0 transition-opacity duration-500 ${viewMode === "images" ? "opacity-100" : "opacity-0"} flex items-center justify-center`}>
+      {project.images?.length > 0 ? (
+        <AutoScrollDragSlider images={project.images} interval={2500} />
+      ):(
+        <p className="text-white text-lg animate-fadeInSmooth">
+          No image uploaded
+        </p>
+      )}
+    </div>
+
+    <div className={`absolute inset-0 transition-opacity duration-500
+      ${viewMode === "video" ? "opacity-100" : "opacity-0"} flex items-center justify-center`}>
+      {project.video?.url ? (
+        <video
+          src={project.video.url}
+          controls
+          className="w-full h-full object-contain rounded-xl animate-fadeInSmooth"
+        />
+      ) : (
+        <p className="text-white text-lg animate-fadeInSmooth">
+          No video uploaded
+        </p>
+      )}
+    </div>
   </div>
 </div>
 
