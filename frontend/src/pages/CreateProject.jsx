@@ -10,27 +10,34 @@ export default function CreateProject() {
   const [files, setFiles] = useState([]);
   const [video, setVideo] = useState(null);
 
+  const [creating, setCreating] = useState(false);
+
   const onSubmit = async (data) => {
-    try {
-      const res = await createProject(data);
-      const projectId = res.data._id;
+  try {
+    setCreating(true);
 
-      // Upload images if selected
-      if (files.length > 0) {
-        await uploadImage(projectId, files);
-      }
+    const res = await createProject(data);
+    const projectId = res.data._id;
 
-      // Upload single video if selected
-      if (video) {
-        await uploadVideo(projectId, video);
-      }
-
-      reset();
-      navigate("/admin/projects");
-    } catch (err) {
-      console.error("Error creating project:", err);
+    // Upload images if selected
+    if (files.length > 0) {
+      await uploadImage(projectId, files);
     }
-  };
+
+    // Upload single video if selected
+    if (video) {
+      await uploadVideo(projectId, video);
+    }
+
+    reset();
+    navigate("/admin/projects");
+  } catch (err) {
+    console.error("Error creating project:", err);
+  } finally {
+    setCreating(false);
+  }
+};
+
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -100,9 +107,21 @@ export default function CreateProject() {
           </div>
 
           {/* Submit */}
-          <button className="w-full bg-blue-600 hover:bg-blue-700 transition text-white p-3 rounded-lg font-medium">
-            Create Project
-          </button>
+          <button
+  disabled={creating}
+  className={`w-full p-3 rounded-lg font-medium flex items-center justify-center gap-2
+    ${creating ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+>
+  {creating ? (
+    <>
+      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      Creating...
+    </>
+  ) : (
+    "Create Project"
+  )}
+</button>
+
         </form>
 
         {/* RIGHT SECTION — PREVIEWS */}

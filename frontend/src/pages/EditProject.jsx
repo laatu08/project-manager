@@ -24,6 +24,8 @@ export default function EditProject() {
   const [deleteVideoFlag, setDeleteVideoFlag] = useState(false);
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
 
   // Load project
   useEffect(() => {
@@ -35,6 +37,9 @@ export default function EditProject() {
   }, [id, reset]);
 
   const onSubmit = async (data) => {
+  try {
+    setSaving(true);
+
     await updateProject(id, data);
 
     // Delete removed images
@@ -58,7 +63,13 @@ export default function EditProject() {
     }
 
     navigate("/admin/projects");
-  };
+  } catch (err) {
+    console.error("Error saving project:", err);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleDeleteImageMark = (url) => {
     setDeletedImages((prev) => [...prev, url]);
@@ -163,9 +174,21 @@ export default function EditProject() {
               Cancel
             </button>
 
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-              Save Changes
-            </button>
+            <button
+  disabled={saving}
+  className={`px-4 py-2 rounded-lg text-white flex items-center gap-2
+    ${saving ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+>
+  {saving ? (
+    <>
+      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      Saving...
+    </>
+  ) : (
+    "Save Changes"
+  )}
+</button>
+
           </div>
         </form>
 

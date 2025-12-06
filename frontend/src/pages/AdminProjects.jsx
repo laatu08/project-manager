@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { deleteProject, getAllProjects, getProjects } from "../services/projectApi";
+import {
+  deleteProject,
+  getAllProjects,
+  getProjects,
+} from "../services/projectApi";
 import { Link } from "react-router-dom";
 import { FiTrash2, FiEdit, FiMoreVertical, FiImage } from "react-icons/fi";
 import AutoSlider from "../components/AutoSlider";
@@ -7,8 +11,9 @@ import AutoSlider from "../components/AutoSlider";
 export default function AdminProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(null); // dropdown menu id
-  const [deleteId, setDeleteId] = useState(null); // for confirmation modal
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     getAllProjects().then((res) => {
@@ -43,9 +48,7 @@ export default function AdminProjects() {
             {/* Action Menu */}
             <div className="absolute top-3 right-3 z-30">
               <button
-                onClick={() =>
-                  setMenuOpen(menuOpen === p._id ? null : p._id)
-                }
+                onClick={() => setMenuOpen(menuOpen === p._id ? null : p._id)}
                 className="text-gray-500 hover:text-black"
               >
                 <FiMoreVertical size={20} />
@@ -77,8 +80,7 @@ export default function AdminProjects() {
               //   className="w-full h-40 object-cover rounded-lg"
               //   alt="thumbnail"
               // />
-                <AutoSlider images={p.images} interval={2500} height="h-52" />
-              
+              <AutoSlider images={p.images} interval={2500} height="h-52" />
             ) : (
               <div className="w-full h-40 bg-gray-200 flex items-center justify-center rounded-lg">
                 <FiImage className="text-gray-400" size={40} />
@@ -127,12 +129,17 @@ export default function AdminProjects() {
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <DeleteModal
+          loading={deleteLoading}
           onConfirm={async () => {
+            setDeleteLoading(true);
             await deleteProject(deleteId);
             setProjects(projects.filter((pr) => pr._id !== deleteId));
+            setDeleteLoading(false);
             setDeleteId(null);
           }}
-          onCancel={() => setDeleteId(null)}
+          onCancel={() => {
+            if (!deleteLoading) setDeleteId(null);
+          }}
         />
       )}
     </div>
@@ -141,28 +148,35 @@ export default function AdminProjects() {
 
 /* ---------------- MODAL COMPONENT ---------------- */
 
-function DeleteModal({ onConfirm, onCancel }) {
+function DeleteModal({ onConfirm, onCancel, loading }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center animate-fadeInSmooth">
         <h2 className="text-xl font-semibold">Delete Project?</h2>
-        <p className="text-gray-600 mt-2 mb-4">
-          This action cannot be undone.
-        </p>
+        <p className="text-gray-600 mt-2 mb-4">This action cannot be undone.</p>
 
         <div className="flex justify-center gap-4">
           <button
-            onClick={onCancel}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+            onClick={loading ? null : onCancel}
+            disabled={loading}
+            className="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50"
           >
             Cancel
           </button>
 
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            onClick={loading ? null : onConfirm}
+            disabled={loading}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Delete
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Deleting…
+              </>
+            ) : (
+              "Delete"
+            )}
           </button>
         </div>
       </div>
