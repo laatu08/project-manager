@@ -25,7 +25,7 @@ router.post("/", requireAuth, createProject);
 router.put("/:id", requireAuth, updateProject);
 router.delete("/:id", requireAuth, deleteProject);
 
-router.post("/:id/images", requireAuth, upload.array("images",10), uploadProjectImages);
+router.post("/:id/images", requireAuth, upload.array("images",20), uploadProjectImages);
 router.delete("/:id/images", requireAuth, deleteProjectImage);
 
 export default router;

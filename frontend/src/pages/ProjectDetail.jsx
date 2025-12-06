@@ -160,13 +160,13 @@ export default function ProjectDetail() {
         </div>
 
         <div className="hidden lg:block fixed right-20 top-24 w-[600px]">
-          <div className="w-full rounded-xl shadow-2xl overflow-hidden 
-                          ring-1 ring-gray-300 hover:shadow-[0_0_40px_rgba(0,0,0,0.08)] transition">
-            {project.images?.length > 0 && (
-              <AutoScrollDragSlider images={project.images} interval={2500} />
-            )}
-          </div>
-        </div>
+  <div className="w-full h-[450px] rounded-xl shadow-2xl bg-black flex items-center justify-center">
+    {project.images?.length > 0 && (
+      <AutoScrollDragSlider images={project.images} interval={2500} />
+    )}
+  </div>
+</div>
+
 
       </div>
     </div>
