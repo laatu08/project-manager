@@ -6,12 +6,12 @@ export const createProject = async (data) => {
 
 export const getProjects = async () => {
   const res = await api.get('/api/projects');
-  return res.data;       
+  return res.data;
 };
 
 export const getAllProjects = async () => {
   const res = await api.get('/api/projects/all');
-  return res.data;       
+  return res.data;
 };
 
 export const getProjectById = async (id) => {
@@ -31,7 +31,7 @@ export const deleteProject = async (id) => {
 
 export const uploadImage = async (id, files) => {
   const form = new FormData();
-  
+
   for (let file of files) {
     form.append("images", file);
   }
@@ -49,5 +49,26 @@ export const uploadImage = async (id, files) => {
 // Delete image
 export const deleteImage = (projectId, url) =>
   api.delete(`/api/projects/${projectId}/images`, {
-    data: { url }
+    headers: { "Content-Type": "application/json" },
+  data: { url },
   });
+
+
+export const uploadVideo = async (projectId, file) => {
+  const form = new FormData();
+  form.append("video", file);
+
+  const res = await api.post(`/api/projects/${projectId}/video`, form, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
+};
+
+export const deleteVideo = async (projectId) => {
+  // No URL needed because backend removes entire video object
+  const res = await api.delete(`/api/projects/${projectId}/video`);
+  return res.data;
+};
