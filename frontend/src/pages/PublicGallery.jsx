@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProjects } from "../services/projectApi";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import AutoSlider from "../components/AutoSlider";
 import { FiSearch, FiBox } from "react-icons/fi";
 
@@ -9,6 +9,7 @@ export default function PublicGallery() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
   useEffect(() => {
     getProjects().then((res) => {
       setProjects(res); 
@@ -25,8 +26,9 @@ export default function PublicGallery() {
     <div className="max-w-7xl mx-auto px-6 py-10">
 
       {/* ---------------- HERO ---------------- */}
+
       <div className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight cursor-pointer" onClick={()=>navigate("/")}>
           Project <span className="text-blue-600">Gallery</span>
         </h1>
         <p className="text-gray-600 mt-3 text-lg">

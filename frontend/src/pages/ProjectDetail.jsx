@@ -132,6 +132,29 @@ export default function ProjectDetail() {
             </div>
           </section>
 
+          <section className="bg-gray-50 p-6 rounded-xl shadow border animate-fadeUp [animation-delay:0.45s]">
+            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              Project Info
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4 text-gray-700 text-sm">
+              <div>
+                <span className="font-medium">Visibility:</span> {project.visibility}
+              </div>
+              <div>
+                <span className="font-medium">Year:</span> {project.year}
+              </div>
+              <div>
+                <span className="font-medium">Created:</span>{" "}
+                {new Date(project.createdAt).toLocaleDateString()}
+              </div>
+              <div>
+                <span className="font-medium">Updated:</span>{" "}
+                {new Date(project.updatedAt).toLocaleDateString()}
+              </div>
+            </div>
+          </section>
+
         </div>
 
 <div className="hidden lg:block fixed right-20 top-16 w-[600px]">
