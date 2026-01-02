@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: "https://project-manager-lovat-iota.vercel.app/",
+    origin: "https://project-manager-lovat-iota.vercel.app",
     credentials: true,
 }));
 app.use(express.json());
