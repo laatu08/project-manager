@@ -19,8 +19,8 @@ const router = express.Router();
 
 // Public
 router.get("/", getProjects);
-router.get("/all", requireAuth, getProjects);
-router.get("/:id",requireAuth, getProjectById);
+router.get("/all", getProjects);
+router.get("/:id", getProjectById);
 
 // Admin
 router.post("/", requireAuth, createProject);
