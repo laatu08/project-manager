@@ -40,8 +40,8 @@ export const loginAdmin=async(req,res)=>{
         const token=generateAccessToken(admin);
         res.cookie("accessToken",token,{
             httpOnly:true,
-            secure:false,
-            sameSite:"lax",
+            secure:true,
+            sameSite:"none",
             maxAge:24*60*60*1000
         });
 
