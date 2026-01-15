@@ -956,16 +956,4 @@ npm run preview
 
 ---
 
-## License
-
-This project is open source and available under the MIT License.
-
----
-
-## Support
-
-For issues, questions, or contributions, please open an issue on GitHub or contact the developer.
-
----
-
 **Built with ❤️ by Partha Borah**
