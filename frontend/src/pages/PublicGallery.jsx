@@ -15,14 +15,25 @@ export default function PublicGallery() {
   const [selectedTechs, setSelectedTechs] = useState([]); // MULTI SELECT
 
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const [error, setError] = useState(null);
+
   const dropdownRef = useRef();
 
   const navigate = useNavigate();
   useEffect(() => {
-    getProjects().then((res) => {
-      setProjects(res);
-      setLoading(false);
-    });
+    getProjects()
+      .then((res) => {
+        setProjects(res);
+        setLoading(false);
+        setError(null);
+      })
+      .catch((_) => {
+        setError(
+          "Sorry, Used up all the free instance hours of render. Next renewal in 1st Feb"
+        );
+        setLoading(false)
+      });
   }, []);
 
   useEffect(() => {
@@ -177,9 +188,7 @@ export default function PublicGallery() {
               setTechQuery("");
             }}
             className={`h-12 px-4 rounded-xl text-sm font-medium border 
-        ${
-          techMode ? "bg-blue-600 text-white" : "bg-black text-gray-50"
-        }`}
+        ${techMode ? "bg-blue-600 text-white" : "bg-black text-gray-50"}`}
           >
             {techMode ? "Normal Search" : "Search by Tech"}
           </button>
@@ -194,7 +203,20 @@ export default function PublicGallery() {
       )}
 
       {/* ---------------- EMPTY STATE ---------------- */}
-      {!loading && filtered.length === 0 && (
+      {!loading && error !== null && (
+        <div className="text-center py-24 text-gray-600">
+          <FiBox className="mx-auto mb-4 text-orange-500" size={48} />
+          <h2 className="text-xl font-semibold mb-2">
+            Backend temporarily unavailable
+          </h2>
+          <p className="max-w-md mx-auto">
+            Sorry, the backend has used all free instance hours on Render.
+            <br />
+            Please check back later or contact the developer from <a href="https://parthaborah.vercel.app/" target="_blank" className="text-blue-600">here</a>.
+          </p>
+        </div>
+      )}
+      {!loading && error===null && filtered.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           <FiBox className="mx-auto mb-3" size={40} />
           <p>No projects found.</p>
